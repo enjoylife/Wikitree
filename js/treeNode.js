@@ -1,3 +1,4 @@
+//treenode
 function treeNode(articleName){
 
 	this.article = articleName;
