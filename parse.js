@@ -171,7 +171,7 @@ function getHTML(node, depth){
 
 	for(var i = 0; i < depth;i ++){
 		document.getElementById("results").innerHTML +=
-		"&#160;&#160;&#160;&#160;&#160;&#160;&#160;";
+		"&#160;&#160;&#160;&#160;&#160;&#160;";
 
 	}
 
