@@ -1,0 +1,33 @@
+<html>
+    <head>
+    <title>WIKITREE β.1</title>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+         <script type="text/javascript" src="treeNode.js"></script>
+        <script type="text/javascript" src="parse.js"></script>
+
+     
+    </head>
+    <body>
+
+        <div name="top">
+            <center>WIKITREE β.1<br><br></center>
+
+            <input type="text" id="article" size="25" 
+                onkeydown="if (event.keyCode == 13)startGraphing(article.value,3)">
+            <br>
+
+            <button id="clickme" onclick="startGraphing(article.value,3)">submit</button>
+        </div>
+
+        <div id = "results">
+        <br><br>
+
+
+
+        </div>
+
+
+    </body>
+
+</html>
