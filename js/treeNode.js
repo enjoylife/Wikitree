@@ -2,23 +2,21 @@
 function treeNode(articleName){
 
 	this.article = articleName;
-	this.lChild = null;
-	this.rChild = null;
-	this.rawHTML = null;
+	this.children = [];
+
 
 	treeNode.prototype.setlChild = function(otherTreeNode){
 
-		this.lChild = otherTreeNode;
+		if(this.children == undefined)
+			alert("undef "+this.article+"other "+otherTreeNode.article);
+
+		this.children[0] = otherTreeNode;
 	}
 
 	treeNode.prototype.setrChild = function(otherTreeNode){
 
-		this.rChild = otherTreeNode;
+		this.children[1] = otherTreeNode;
 	}
 
-	treeNode.prototype.print = function(){
-
-		//document.getElementById("results").innerHTML += this.article;
-	}
 
 }

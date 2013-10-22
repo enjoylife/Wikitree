@@ -59,9 +59,9 @@ function handleDisambig(rawHTML){
 }
 
 
-function parse(node, depth){
+function parse(node, rawHTML){
 
-	var rawHTML = node.rawHTML;
+	
 
 	if(rawHTML == "URLERR"){	
 		alert("Could not find article");
@@ -79,7 +79,9 @@ function parse(node, depth){
 
 //check if wiki gives disambiguation page
 	if(rawHTML.indexOf("ITSADISAMBIG!") == 0 ){
-		getHTML(handleDisambig(rawHTML),depth);
+
+		node.article = handleDisambig(rawHTML);
+		createChildren(node);
 		return;
 	}
 	
@@ -89,12 +91,14 @@ function parse(node, depth){
 
 	if(redirectCheck[0]){
 
-		getHTML(redirectCheck[1],depth);
+		node.article = getHTML(redirectCheck[1]);
+		createChildren(node);
 		return;
 	}
 
 
 	var nextLink;
+
 
 //look for main word:
 	var threeTickIndex = rawHTML.indexOf("'''");
@@ -126,14 +130,32 @@ function parse(node, depth){
 // its cool
 	var secondLink = getFirstLink(rawHTML);
 
+	var NONE1 = new treeNode("NONE");
+	var NONE2 = new treeNode("NONE");
+	var NONE3 = new treeNode("NONE");
+	var NONE4 = new treeNode("NONE");
+
+	// var eh1 = new treeNode("A");
+	// var eh2 = new treeNode("B");
+
 	var firstChild = new treeNode(firstLink);
-	var secondChild = new treeNode(secondLink);
+//	firstChild.setlChild(NONE1); 
+	//firstChild.setrChild(NONE3); 
 
-	node.setlChild(firstChild);
+	 var secondChild = new treeNode(secondLink);
+	// secondChild.setlChild(NONE2);
+	// secondChild.setrChild(NONE4);
+	
+	 node.setlChild(firstChild);
 
-	node.setrChild(secondChild);
+	 node.setrChild(secondChild);
 
-	return [firstChild,secondChild];
+	//alert(head.children[0].children[0].article);
+	//document.getElementById("d3graph").innerHTML ="ass";
+	//graph(head);
+
+	return [firstLink,secondLink];
+
 
 //TODO:dont parse in-page links
 /*
@@ -149,77 +171,60 @@ function parse(node, depth){
 
 }
 
-//printing vars
-var lastDepth = false;
-var order = "";
+var graph = true;
+function HTTPREQ(node){
 
-function getHTML(node, depth){
-
-
-	order+=  "<br>"+node.article+ "<br>";
-	//alert("Getting html: " + node.article);
-
-
+	
 	var article = node.article.split(" ").join("%20");
+	
+	var ret;
+
+	var URL = "http://en.wikipedia.org/w/api.php?"
+			+"format=json&action=query&titles="
+			+article+"&prop=revisions&rvprop=content";
 
 
-//printing
-	if(depth!=lastDepth){
-		document.getElementById("results").innerHTML += "<br><br>(Depth: "+depth+")";
-		
-	}
-
-	for(var i = 0; i < depth;i ++){
-		document.getElementById("results").innerHTML +=
-		"&#160;&#160;&#160;&#160;&#160;&#160;";
-
-	}
-
-	document.getElementById("results").innerHTML += 
-	 article.split("%20").join(" ");
-
-	lastDepth = depth;	
-//printing
-
-	var URL = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles="
-	+article+"&prop=revisions&rvprop=content";
-
-	var childLinks;
-
-    $.ajax({
+	    $.ajax({
+	    async:false,
         url: "/cgi-bin/scrape.py",
         type: "post",
         datatype:"json",
         data: {'URL': URL},
         success: function(response){
-        	node.rawHTML = response.rawHTML;
-            var children = parse(node);
-
-            if(depth == 1){
-				//document.getElementById("results").innerHTML += order;
-				return;
-			}
-
-            getHTML(children[0], depth -1);
-            getHTML(children[1], depth -1);
-
-           
+        	
+        	parse(node,response.rawHTML);
+	
+        	
         }
     });
- 
+
+	
+}
+
+
+function createChildren(node){
+
+	if(node.article == undefined)
+		return;
+
+	HTTPREQ(node);
+	//alert("HERE "+temp[0].article)
+
 
 }
 
 
 
-function startGraphing(article,depth){
+function initArticle(article){
 
 
-	lastDepth = depth+1;
-
+	
 	var head = new treeNode(article);
-	getHTML(head,depth);
+	graph(head);
 
-
+	//createChildren(head);
 
 }
+
+
+$(window).load(function(){ initArticle("algebra")});
