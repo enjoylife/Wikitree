@@ -1,8 +1,9 @@
 //treenode
-function treeNode(articleName){
+function treeNode(articleName, depth){
 
 	this.article = articleName;
 	this.children = [];
+	this.depth = depth;
 
 
 	treeNode.prototype.setlChild = function(otherTreeNode){

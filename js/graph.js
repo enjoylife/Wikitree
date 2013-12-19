@@ -3,15 +3,15 @@ var tree,root,svg,i,diagonal;
 function graph(jsonTree){
 
 
-	var margin = {top: 20, right: 120, bottom: 20, left: 120},
-    width = 960 - margin.right - margin.left,
-    height = 800 - margin.top - margin.bottom;
+	var margin = {top: 30, right: 0, bottom: 20, left: 0},
+    width =  1024 - margin.right - margin.left,
+    height = 1024 - margin.top - margin.bottom;
     
  	i = 0,
-    duration = 750;
+  duration = 500;
 
  tree = d3.layout.tree()
-    .size([height, width]);
+    .size([width, height]);
 
  diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.x, d.y]; });
@@ -19,7 +19,8 @@ function graph(jsonTree){
 	svg = d3.select("#d3graph").append("svg")
     .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
-  .append("g")
+    .attr("id", "svg")
+    .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
@@ -43,19 +44,17 @@ d3.select(self.frameElement).style("height", "800px");
 
 
 
-
-
-	
 }
 
 function update(source) {
+
 
   // Compute the new tree layout.
   var nodes = tree.nodes(root).reverse(),
       links = tree.links(nodes);
 
   // Normalize for fixed-depth.
-  nodes.forEach(function(d) { d.y = d.depth * 180; });
+  nodes.forEach(function(d) { d.y = d.depth * 150; });
 
   // Update the nodes…
   var node = svg.selectAll("g.node")
@@ -84,7 +83,7 @@ function update(source) {
       .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
   nodeUpdate.select("circle")
-      .attr("r", 4.5)
+      .attr("r", 20)
       .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
   nodeUpdate.select("text")
@@ -149,23 +148,23 @@ function click(d) {
     
     d.children = d._children;
 
-    alert(d.article);
 
     if(!d.children[0] && !d.children[1]){
-      alet("hope this doesnt run");
       createChildren(d);
 
     }
     
-    
-   // alert(d.children[0].article);
+
     d._children = null;
   }
   else{
 
     //Node is unexplored. Lets explore it.
+    //(unless weve reached max depth)
      d.children=[];
-     createChildren(d);
+
+     if(d.depth<3)
+      createChildren(d);
   }
 
   update(d);

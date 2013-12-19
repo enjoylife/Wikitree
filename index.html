@@ -1,59 +1,41 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<style>
-
-.node {
-  cursor: pointer;
-}
-
-.node circle {
-  fill: #fff;
-  stroke: steelblue;
-  stroke-width: 1.5px;
-}
-
-.node text {
-  font-family: "Avant Garde", Avantgarde, "Century Gothic",
-      CenturyGothic, "AppleGothic", sans-serif;
-}
-
-.link {
-  fill: none;
-  stroke: #ccc;
-  stroke-width: 1.5px;
-}
-
-</style>
-    <head>
-    <title>WIKITREE β.1</title>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8">
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-         <script type="text/javascript" src="js/treeNode.js"></script>
-        <script type="text/javascript" src="js/parse.js"></script>
-        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-        <script type="text/javascript" src="js/graph.js"></script>
-
-     
+<html>
+   <head>      
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+      <title>WIKITREE</title>
+      <link rel="stylesheet" href="style.css">
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+      <script type="text/javascript" src="js/treeNode.js"></script>
+      <script type="text/javascript" src="js/parse.js"></script>
+      <script type="text/javascript" src="js/graph.js"></script>
+      <script type="text/javascript" src="js/d3.v3.min.js"></script>
     </head>
-    <body>
-  
-        <div name="top">
-            <center>WIKITREE β.2<br><br><br></center>
-          Enter Article Title:<br><br>
-            <input type="text" id="article" size="25" 
-            onkeydown="if (event.keyCode == 13)initArticle(article.value)">
-            <br>
-
-            <button id="clickme" onclick="initArticle(article.value)">
-            submit</button>
-        </div>
-
-        <div id = "d3graph" name ="d3graph" align="center">
-
-        
-        </div>
 
 
-    </body>
+<body>
+
+  <div id = "header"></div>
+
+  <div id="content" class="center">
+
+    <div id = "info">
+
+        Enter Article Title:<br><br>
+
+        <input type="text" id="article" size="25" 
+        onkeydown="if (event.keyCode == 13)initArticle(article.value)">
+        <br>
+
+        <button id="clickme" onclick="initArticle(article.value)">
+          submit</button>
+          <br><br>
+          -click nodes to explore<br>
+          -branches collapsable
+      </div>
+
+      <div id = "d3graph" class="center"></div>
+    </div>
+
+</body>
 
 </html>
