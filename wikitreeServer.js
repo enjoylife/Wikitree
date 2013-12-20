@@ -65,12 +65,13 @@ http.createServer(app).listen(app.get('port'),
   });
 
 
-
+var redirectInfo ="";
 function serveLink(req,resp){
 
+  var artName = req.body.articleName.split(" ").join("%20");
   var urlToQuery = "/w/api.php?"
       +"format=json&action=query&titles="
-      + req.body.articleName.split(" ").join("%20")+"&prop=revisions&rvprop=content";
+      +artName +"&prop=revisions&rvprop=content";
 
       /* Setting up the API call parameters */
     var options = {
@@ -81,131 +82,85 @@ function serveLink(req,resp){
 
    var jsonResp = '';
 
-   //request Alchemy API
-   var wikiReq = http.get(options, function(wikiResp) {
+   try{
+     //request Alchemy API
+     var wikiReq = http.get(options, function(wikiResp) {
 
-        //CALLBACK alchemy request
-       wikiResp.on('end',function(){
-           
-           var checkRedo = parse(JSON.stringify(jsonResp),resp);
+          //CALLBACK alchemy request
+         wikiResp.on('end',function(){
+             
+             var checkRedo = parse(JSON.stringify(jsonResp),resp);
 
-           if(checkRedo == undefined)
-           {
-              resp.send("UNDEF");
-           }
+             if(!checkRedo)
+             {
+                resp.send("UNDEF");
+             }
 
-          else if(checkRedo[0]=="REDO"){
+            else if(checkRedo[0]=="REDO"){
 
-            console.log("redirected to "+checkRedo[1].body.articleName);
-            serveLink(checkRedo[1],resp);
+              redirectInfo+=("<b><font color=\"green\">Redirected </font></b><u>"+req.body.articleName.split("%20").join(" ")+ "</u> to <u>"+
+                    checkRedo[1].body.articleName.split("%20").join(" "))+"</u><br><br>";
 
-          }
+              serveLink(checkRedo[1],resp);
 
-          //Lookup succeeded, send the data
-          else
-            resp.send(checkRedo);
-       });
+            }
+            else if(checkRedo[0]=="DISAM"){
 
-       wikiResp.setEncoding('utf8');
-
-       //data comes in chunks, so concatenate them
-       wikiResp.on('data', function (chunk) {
-           jsonResp += chunk;
-       });
-   });
+              redirectInfo+=("<b><font color=\"purple\">Disambiguated </font></b><u>"+req.body.articleName.split("%20").join(" ")+ "</u> to <u>"+
+                    checkRedo[1].body.articleName.split("%20").join(" "))+"</u><br><br>";
   
+              serveLink(checkRedo[1],resp);
+            }
+
+            //Lookup succeeded, send the data
+            else{
+
+              if(redirectInfo != "")
+                checkRedo[2] = redirectInfo;
+              resp.send(checkRedo);
+              redirectInfo = "";
+            }
+         });
+
+
+
+         wikiResp.setEncoding('utf8');
+
+         //data comes in chunks, so concatenate them
+         wikiResp.on('data', function (chunk) {
+             jsonResp += chunk;
+         });
+
+         wikiResp.on('error', function (err) {
+             resp.send("UNDEF");
+         });
+     });
+  }
+
+  catch(err){
+    console.log(err);
+    resp.send("UNDEF");
+  }
     
 }
 
 
 
 
-function getFirstLink(rawHTML){
-
-  var lIndex = rawHTML.indexOf("[[");
-  var rIndex = rawHTML.indexOf("]]");
-
-  if(lIndex == -1 || rIndex == -1){
-      console.log("DEBUG: no links could be found in article");
-      return;
-  }
-
-  var nextLink = rawHTML.substring(lIndex+2,rIndex);
-
-//if piped, extract link
-  var pipeIndex = nextLink.indexOf("|");
-
-  if(pipeIndex != -1)
-    nextLink = nextLink.substring(0,pipeIndex);
-
-  return nextLink;
-}
-
-function handleRedirects(rawHTML){
-
-  if(rawHTML.toUpperCase().indexOf("#REDIRECT") != -1){
-  
-    rawHTML = rawHTML.substring(rawHTML.toUpperCase().indexOf("#REDIRECT"));
-    rawHTML = rawHTML.substring(rawHTML.indexOf("[[")+2);
-    rawHTML = rawHTML.substring(0,rawHTML.indexOf("]]"));
-
-
-  //redirect is internal page, just get main page
-    var internalRedirect = rawHTML.indexOf("#");
-
-    if(internalRedirect != -1)
-      rawHTML = rawHTML.substring(0,internalRedirect);
-
-    return [true,rawHTML];
-  }
-
-  return [false];
-
-}
-
-function handleDisambig(rawHTML){
-
-
-
-  var threeTickIndex = rawHTML.indexOf("'''");
-
-  if(threeTickIndex == -1){
-    console.log("Couldnt find main word definition for disambiguation");
-    return;
-  }
-
-  rawHTML = rawHTML.substring(threeTickIndex);
-
-  return getFirstLink(rawHTML);
-
-
-}
-
 
 function parse(rawHTML,respIfRedo){
 
-  
-
-  if(rawHTML == "URLERR"){  
-    console.log("DEBUG: Could not find article");
-    return undefined;
-  }
-
-  else if(rawHTML == "MISSINGPAGE"){
-    console.log("DEBUG: missing page");
-    return undefined;
-  }
-
-
-  
 
 //check if wiki gives disambiguation page
-  if(rawHTML.indexOf("ITSADISAMBIG!") == 0 ){
+  if(rawHTML.indexOf("{{disambiguation}}") != -1){
 
-    console.log("its a disambiguation");
-    node.article = handleDisambig(rawHTML);
-    createChildren(node);
-    return;
+
+    var newArt = handleDisambig(rawHTML);
+
+    if(!newArt)
+      return;
+
+    return ["DISAM",{"body":{"articleName": newArt}}];
     
   }
   
@@ -271,6 +226,70 @@ function parse(rawHTML,respIfRedo){
     nextLink = getFirstLink(rawHTML);
   }
 */
+
+
+}
+
+
+
+
+function getFirstLink(rawHTML){
+
+  var lIndex = rawHTML.indexOf("[[");
+  var rIndex = rawHTML.indexOf("]]");
+
+  if(lIndex == -1 || rIndex == -1){
+      console.log("DEBUG: no links could be found in article");
+      return;
+  }
+
+  var nextLink = rawHTML.substring(lIndex+2,rIndex);
+
+//if piped, extract link
+  var pipeIndex = nextLink.indexOf("|");
+
+  if(pipeIndex != -1)
+    nextLink = nextLink.substring(0,pipeIndex);
+
+  return nextLink;
+}
+
+function handleRedirects(rawHTML){
+
+  if(rawHTML.toUpperCase().indexOf("#REDIRECT") != -1){
+  
+    rawHTML = rawHTML.substring(rawHTML.toUpperCase().indexOf("#REDIRECT"));
+    rawHTML = rawHTML.substring(rawHTML.indexOf("[[")+2);
+    rawHTML = rawHTML.substring(0,rawHTML.indexOf("]]"));
+
+
+  //redirect is internal page, just get main page
+    var internalRedirect = rawHTML.indexOf("#");
+
+    if(internalRedirect != -1)
+      rawHTML = rawHTML.substring(0,internalRedirect);
+
+    return [true,rawHTML];
+  }
+
+  return [false];
+
+}
+
+function handleDisambig(rawHTML){
+
+
+
+  var threeTickIndex = rawHTML.indexOf("'''");
+
+  if(threeTickIndex == -1){
+    console.log("Couldnt find main word definition for disambiguation");
+    return;
+  }
+
+  rawHTML = rawHTML.substring(threeTickIndex);
+
+  return getFirstLink(rawHTML);
 
 
 }

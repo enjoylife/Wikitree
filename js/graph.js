@@ -3,7 +3,7 @@ var tree,root,svg,i,diagonal;
 function graph(jsonTree){
 
 
-	var margin = {top: 30, right: 0, bottom: 20, left: 0},
+	var margin = {top: 40, right: 0, bottom: 0, left: 0},
     width =  1024 - margin.right - margin.left,
     height = 1024 - margin.top - margin.bottom;
     
@@ -71,11 +71,15 @@ function update(source) {
       .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
   nodeEnter.append("text")
-      .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-      .attr("dy", ".35em")
+      .attr("x", function(d) { return d.children || d._children ? 0 : 0; })
+      .attr("dy", function(d){return d.isLeft ? "-.4em" : "1em"})
       .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-      .text(function(d) { return d.article; })
-      .style("fill-opacity", 1e-6);
+      .text(function(d) { return d.article})
+      .style("fill-opacity", 1e-6)
+      .style("z-index", 6)
+      .style("font-size", function(d){
+              return d.article.length < 10 ? "20px": "15fpx";
+            });
 
   // Transition nodes to their new position.
   var nodeUpdate = node.transition()
@@ -83,7 +87,7 @@ function update(source) {
       .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
   nodeUpdate.select("circle")
-      .attr("r", 20)
+      .attr("r", 25)
       .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
   nodeUpdate.select("text")
@@ -163,7 +167,7 @@ function click(d) {
     //(unless weve reached max depth)
      d.children=[];
 
-     if(d.depth<3)
+     if(d.depth<6)
       createChildren(d);
   }
 

@@ -1,9 +1,12 @@
 //treenode
-function treeNode(articleName, depth){
+function treeNode(articleName, depth, left){
 
-	this.article = articleName;
+
+	this.article = articleName.indexOf("(")!= -1 ? 
+					articleName.substring(0,articleName.indexOf("(")) : articleName; 
 	this.children = [];
 	this.depth = depth;
+	this.isLeft = left;
 
 
 	treeNode.prototype.setlChild = function(otherTreeNode){

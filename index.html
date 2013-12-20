@@ -9,32 +9,49 @@
       <script type="text/javascript" src="js/parse.js"></script>
       <script type="text/javascript" src="js/graph.js"></script>
       <script type="text/javascript" src="js/d3.v3.min.js"></script>
+
     </head>
 
 
 <body>
 
-  <div id = "header"></div>
+  <div id = "header">
+    <div id="logo">
+        <svg id ="svgLogo">
 
-  <div id="content" class="center">
+          <defs>  
+            <linearGradient id="textgradient" x1="0%" x2="0%" y1="10%" y2="70%">  
+                <stop stop-color="steelblue" offset="0%"/>  
+                <stop stop-color="#000" offset="100%"/>  
+            </linearGradient>  
+          </defs>  
 
-    <div id = "info">
+          <text x="0" y="80" font-size="72" font-weight="bold" fill="url(#textgradient)" stroke="none">Wikitree</text>  
+
+        </svg>
+
+    </div>
+    
+  </div>
+
+  <div id="content">
+
+    <div id = "sidebar">
 
         Enter Article Title:<br><br>
 
-        <input type="text" id="article" size="25" 
+        <input type="text" id="article" size="20" 
         onkeydown="if (event.keyCode == 13)initArticle(article.value)">
         <br>
-
         <button id="clickme" onclick="initArticle(article.value)">
           submit</button>
+
           <br><br>
-          -click nodes to explore<br>
-          -branches collapsable
+          <div id ="info"></div>
       </div>
 
-      <div id = "d3graph" class="center"></div>
-    </div>
+      <div id = "d3graph"></div>
+  </div>
 
 </body>
 
