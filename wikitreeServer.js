@@ -1,19 +1,30 @@
-/*
- *   wikitree server
- */
+/////////////////////////////////////////////////////////////////////////////
+/*                                                                         //
+*      Wikitree server - wikitreeServer.js                                 //
+*                                                                          //
+*      Serves static html/css/js files.  Replies to POST request           //
+*      for article data.  Queries wikipedia API, extracts links,           //
+*      handles redirects, and responds to client with article data.        //
+*                                                                          //
+*      Brian Bergeron - bergeron@cmu.edu - www.bergeron.im                 //
+*////////////////////////////////////////////////////////////////////////////
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+/*SETTING UP NODE/EXPRESS*/
+/////////////////////////////////////////////////////////////////////////////
 
 /* Needed Node variables */
- var express = require('express');
- var http = require('http');
- var path = require('path');
-
+var express = require('express');
+var http = require('http');
+var path = require('path');
 var app = express();
 
-// all environments
+//Set port to 1338
 app.set('port', process.env.PORT || 1338);
 
-////////
-
+//set up express
 app.use(express.logger('dev'));
 app.use(express.bodyParser());
 app.use(express.compress());
@@ -24,11 +35,10 @@ app.use(app.router);
 app.use(express.static(path.join(__dirname, ''))); 
 
 
-
-
+//Called when article is requested
 app.post('/sendUrl',  serveLink);
 
-
+//Server listen to port 1338 (nginx redirects 80 to 1338)
 http.createServer(app).listen(app.get('port'), 
     function(){
       console.log('Express server listening on port ' + 
@@ -36,9 +46,20 @@ http.createServer(app).listen(app.get('port'),
   });
 
 
+
+/////////////////////////////////////////////////////////////////////////////
+/*THE WORK BEGINS*/
+/////////////////////////////////////////////////////////////////////////////
+
+
+//if redirected or disambiguated, redirectInfo will tell us where we redirected
 var redirectInfo ="";
+
+//serveLink takes in requested article and responds to client with new links 
+//(or "Dead end") and disambiguation/redirect information for updating sidebar
 function serveLink(req,resp){
 
+  //get article name from request
   var artName = req.body.articleName.split(" ").join("%20");
   var urlToQuery = "/w/api.php?"
       +"format=json&action=query&titles="
@@ -51,6 +72,7 @@ function serveLink(req,resp){
 
    };
 
+   //jsonResp will be returned to client
    var jsonResp = '';
 
    try{
@@ -60,13 +82,16 @@ function serveLink(req,resp){
           //CALLBACK alchemy request
          wikiResp.on('end',function(){
              
+             //if we were redirected, checkRedo will tell us
              var checkRedo = parse(JSON.stringify(jsonResp),resp);
 
+             //no article found "Dead end"
              if(!checkRedo)
              {
                 resp.send("UNDEF");
              }
 
+            //redirected
             else if(checkRedo[0]=="REDO"){
 
               redirectInfo+=("<b><font color=\"green\">Redirected </font></b><u>"+req.body.articleName.split("%20").join(" ")+ "</u> to <u>"+
@@ -75,6 +100,8 @@ function serveLink(req,resp){
               serveLink(checkRedo[1],resp);
 
             }
+
+            //landed on disambiguation page
             else if(checkRedo[0]=="DISAM"){
 
               redirectInfo+=("<b><font color=\"purple\">Disambiguated </font></b><u>"+req.body.articleName.split("%20").join(" ")+ "</u> to <u>"+
@@ -108,6 +135,7 @@ function serveLink(req,resp){
      });
   }
 
+  //catch err on querying wikipedia API.  Send user "Dead end"
   catch(err){
     console.log(err);
     resp.send("UNDEF");
@@ -117,15 +145,15 @@ function serveLink(req,resp){
 
 
 
-
-
+//parse extracts the first two links in the article (if they exist)
+//handles redirects (in/out of page) and  disambiguation pages/dead ends
 function parse(rawHTML,respIfRedo){
 
 
 //check if wiki gives disambiguation page
   if(rawHTML.indexOf("{{disambiguation}}") != -1){
 
-
+    //extract first article from disambiguation list
     var newArt = handleDisambig(rawHTML);
 
     if(!newArt)
@@ -136,31 +164,28 @@ function parse(rawHTML,respIfRedo){
   }
   
 
-//case: wikipedia redirectss
+//check if wikipedia redirectss
   var redirectCheck = handleRedirects(rawHTML);
 
   if(redirectCheck[0]){
 
-    var redirArticle = redirectCheck[1];
-
-    var redoReq = {"body":{"articleName": redirArticle}};
-
-    return ["REDO",redoReq];
+    return ["REDO",{"body":{"articleName": redirectCheck[1]}}];
 
   }
 
-
-  var nextLink;
+//////////////Now we will look for links//////////////////
 
 
 //look for main word:
   var threeTickIndex = rawHTML.indexOf("'''");
 
+  //dead end case.
   if(threeTickIndex == -1){
     console.log("DEBUG: couldnt find main word definition");
     return;
   }
 
+  //chops rawHTML after main article word
   rawHTML = rawHTML.substring(threeTickIndex);
 
 
@@ -173,28 +198,25 @@ function parse(rawHTML,respIfRedo){
     rawHTML = rawHTML.substring(isIndex);
 
 
+  //extract first link
   var firstLink = getFirstLink(rawHTML);
 
+  //chop second link
   var secondWordRIndex = rawHTML.indexOf("]]")+2;
-
   rawHTML = rawHTML.substring(secondWordRIndex);
 
 
-  //its cool
+  //extract second link (calling getFirstLink because we chopped rawHTML)
   var secondLink = getFirstLink(rawHTML);
 
   return [firstLink,secondLink];
-
-
-  return [firstLink,secondLink];
-
 
 
 }
 
 
 
-
+//Gets first link in rawHTML by looking for matching square brackets
 function getFirstLink(rawHTML){
 
   var lIndex = rawHTML.indexOf("[[");
@@ -207,7 +229,7 @@ function getFirstLink(rawHTML){
 
   var nextLink = rawHTML.substring(lIndex+2,rIndex);
 
-//if piped, extract link
+  //if piped, extract link
   var pipeIndex = nextLink.indexOf("|");
 
   if(pipeIndex != -1)
@@ -216,6 +238,8 @@ function getFirstLink(rawHTML){
   return nextLink;
 }
 
+
+//checks if wikipedia redirects the article by looking for "#REDIRECT"
 function handleRedirects(rawHTML){
 
   if(rawHTML.toUpperCase().indexOf("#REDIRECT") != -1){
@@ -231,16 +255,17 @@ function handleRedirects(rawHTML){
     if(internalRedirect != -1)
       rawHTML = rawHTML.substring(0,internalRedirect);
 
+    //return true and the new page to redirect to
     return [true,rawHTML];
   }
 
+  //no redirect
   return [false];
 
 }
 
+//if we landed on disambiguation page, redirect to first article
 function handleDisambig(rawHTML){
-
-
 
   var threeTickIndex = rawHTML.indexOf("'''");
 

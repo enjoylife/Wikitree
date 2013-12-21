@@ -9,4 +9,9 @@ Wikitree graphs connections between Wikipedia articles using the [MediaWiki API]
 Features
 --------
 
-Wikitree handles internal redirects, disambiguation pages, in-page links, and dead ends.  Each time a page is requested, the status of the request is displayed in a sidebar.  Clicking a node either explores that article (if leaf node) or collapses the subtree.
+Wikitree handles all internal redirects, disambiguation pages, in-page links, dead ends, and errors.  Each time a page is requested, the status of the request is displayed in a sidebar.  Clicking a node either explores that article (if leaf node) or collapses the subtree.
+
+Author
+------
+
+Brian Bergeron - bergeron@cmu.edu - www.bergeron.im 

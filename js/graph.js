@@ -1,51 +1,55 @@
+/////////////////////////////////////////////////////////////////////////////
+/*                                                                         //
+*      graph.js                                                            //
+*                                                                          //
+*      Graphs tree of articles using D3.  Updates each time node clicked   //
+*                                                                          //
+*      Brian Bergeron - bergeron@cmu.edu - www.bergeron.im                 //
+*////////////////////////////////////////////////////////////////////////////
+
+
 var tree,root,svg,i,diagonal;
 
+
+//called to initialize graph (to graph root node)
 function graph(jsonTree){
 
-
-	var margin = {top: 60, right: 0, bottom: 0, left: 0},
+    //set width/height of graph
+    var margin = {top: 60, right: 0, bottom: 0, left: 0},
     width =  1024 - margin.right - margin.left,
     height = 1024 - margin.top - margin.bottom;
     
- 	i = 0,
-  duration = 500;
+    i = 0,
+    duration = 500;
 
- tree = d3.layout.tree()
-    .size([width, height]);
+   //create tree
+   tree = d3.layout.tree()
+   .size([width, height]);
 
- diagonal = d3.svg.diagonal()
-    .projection(function(d) { return [d.x, d.y]; });
+   diagonal = d3.svg.diagonal()
+   .projection(function(d) { return [d.x, d.y]; });
 
-	svg = d3.select("#d3graph").append("svg")
+    //append svg elem to document
+    svg = d3.select("#d3graph").append("svg")
     .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
     .attr("id", "svg")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+    //set root node pos
+    root = jsonTree;
+    root.x0 = height / 2;
+    root.y0 = 0;
 
-  root = jsonTree;
-  root.x0 = height / 2;
-  root.y0 = 0;
+    //graph contents have changed, must update
+    update(root);
 
-  function collapse(d) {
-    if (d.children) {
-      d._children = d.children;
-      d._children.forEach(collapse);
-      d.children = null;
-    }
+
   }
 
- root.children.forEach(collapse);
- update(root);
 
-
-d3.select(self.frameElement).style("height", "800px");
-
-
-
-}
-
+//updates/redraws graph.  Called any time its contents change
 function update(source) {
 
 
@@ -66,10 +70,12 @@ function update(source) {
       .attr("transform", function(d) { return "translate(" + source.x0 + "," + source.y0 + ")"; })
       .on("click", click);
 
+
   nodeEnter.append("circle")
       .attr("r", 1e-6)
       .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
+  //append article text (20px if short title, 15px otherwise)
   nodeEnter.append("text")
       .attr("x", function(d) { return d.children || d._children ? 0 : 0; })
       .attr("dy", function(d){return d.isLeft ? "-.4em" : "1em"})
@@ -78,7 +84,7 @@ function update(source) {
       .style("fill-opacity", 1e-6)
       .style("z-index", 6)
       .style("font-size", function(d){
-              return d.article.length < 10 ? "20px": "15fpx";
+              return d.article.length < 10 ? "20px": "15px";
             });
 
   // Transition nodes to their new position.
@@ -140,37 +146,40 @@ function update(source) {
 
 
 
-// Toggle children on click.
+//Toggle children on click.  Collapse if interior node, explore if leaf node
+//d._children represents collapsed children, 
+//d.children represents visible children
 function click(d) {
 
-
+  //if has children, set them to null (collapses)
   if (d.children) {
-    
+
     d._children = d.children;
     d.children = null;
-  } else if(d._children){
-    
+  } 
+
+  //if has collapsed children, set them freeeeeeeeeeeeee
+  else if(d._children){
+
     d.children = d._children;
 
-
-    if(!d.children[0] && !d.children[1]){
+    if(!d.children[0] && !d.children[1])
       createChildren(d);
-
-    }
-    
 
     d._children = null;
   }
+
   else{
 
     //Node is unexplored. Lets explore it.
     //(unless weve reached max depth)
-     d.children=[];
+    d.children=[];
 
-     if(d.depth<6)
+    if(d.depth<6)
       createChildren(d);
   }
 
+  //graph changed, must update
   update(d);
 
 
