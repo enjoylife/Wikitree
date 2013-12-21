@@ -218,15 +218,6 @@ function parse(rawHTML,respIfRedo){
   return [firstLink,secondLink];
 
 
-//TODO:dont parse in-page links
-/*
-  while(nextLink.indexOf("#") != -1){
-    //alert("in page");
-    rawHTML = rawHTML.substring(rawHTML.indexOf("]]")+2);
-    nextLink = getFirstLink(rawHTML);
-  }
-*/
-
 
 }
 
