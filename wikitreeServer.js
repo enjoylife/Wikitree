@@ -50,8 +50,8 @@ app.get('/wikitree/js/d3.v3.min.js', function(req,res){
   res.sendfile('js/d3.v3.min.js');
 });
 
-app.get('/wikitree/style.css', function(req,res){
-  res.sendfile('style.css');
+app.get('/wikitree/css/style.css', function(req,res){
+  res.sendfile('css/style.css');
 });
 
 
