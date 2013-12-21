@@ -14,4 +14,4 @@ Wikitree handles internal redirects, disambiguation pages, in-page links, dead e
 Author
 ------
 
-Brian Bergeron - bergeron@cmu.edu - www.bergeron.im 
+Brian Bergeron -- [github.com/bergeron](http://github.com/bergeron) -- [bergeron.im](http://bergeron.im)
