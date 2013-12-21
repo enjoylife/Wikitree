@@ -38,15 +38,23 @@
 
     <div id = "sidebar">
 
-        Enter Article Title:<br><br>
+        <h2>Enter Article Title:</h2>
 
-        <input type="text" id="article" size="20" 
+
+
+        <input type="text" id="article" style="width:150px;"
         onkeydown="if (event.keyCode == 13)initArticle(article.value)">
-        <br>
+        
         <button id="clickme" onclick="initArticle(article.value)">
-          submit</button>
+          Graph</button>
 
-          <br><br>
+          <hr>
+
+          Click nodes to expand/collapse
+
+          <hr>
+
+          <br>
           <div id ="info"></div>
       </div>
 

@@ -18,7 +18,7 @@ function HTTPREQ(node){
         	if(response == "UNDEF" || !response ){
 
         		document.getElementById("info").innerHTML
-        			+= "<font color=\"red\">Dead end</font> at <u>"+node.article+"</u><br><br>";
+        			+= "<font color=\"red\">Dead end</font> at <u>"+node.article+"</u><p>";
         		return;
         	}
 
@@ -49,6 +49,8 @@ function createChildren(node){
 
 	if(node.article == undefined)
 		return;
+
+    document.getElementById("info").innerHTML+="<b><font color=\"blue\">Exploring</b></font> "+node.article+"<p>";
 
 	HTTPREQ(node);
 	//alert("HERE "+temp[0].article)

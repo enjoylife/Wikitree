@@ -99,7 +99,7 @@ function serveLink(req,resp){
             else if(checkRedo[0]=="REDO"){
 
               redirectInfo+=("<b><font color=\"green\">Redirected </font></b><u>"+req.body.articleName.split("%20").join(" ")+ "</u> to <u>"+
-                    checkRedo[1].body.articleName.split("%20").join(" "))+"</u><br><br>";
+                    checkRedo[1].body.articleName.split("%20").join(" "))+"</u><p>";
 
               serveLink(checkRedo[1],resp);
 
@@ -107,7 +107,7 @@ function serveLink(req,resp){
             else if(checkRedo[0]=="DISAM"){
 
               redirectInfo+=("<b><font color=\"purple\">Disambiguated </font></b><u>"+req.body.articleName.split("%20").join(" ")+ "</u> to <u>"+
-                    checkRedo[1].body.articleName.split("%20").join(" "))+"</u><br><br>";
+                    checkRedo[1].body.articleName.split("%20").join(" "))+"</u><p>";
   
               serveLink(checkRedo[1],resp);
             }

@@ -3,7 +3,7 @@ var tree,root,svg,i,diagonal;
 function graph(jsonTree){
 
 
-	var margin = {top: 40, right: 0, bottom: 0, left: 0},
+	var margin = {top: 60, right: 0, bottom: 0, left: 0},
     width =  1024 - margin.right - margin.left,
     height = 1024 - margin.top - margin.bottom;
     
