@@ -19,40 +19,11 @@ app.use(express.bodyParser());
 app.use(express.compress());
 app.use(express.methodOverride());
 app.use(app.router);
+
+//Serves static files
 app.use(express.static(path.join(__dirname, ''))); 
 
 
-// development only
-
-  app.use(express.errorHandler());
-
-app.get('/wikitree', function(req,res){
-  res.sendfile('index.html');
-});
-
-app.get('/wikitree/js/treeNode.js', function(req,res){
-  res.set('Content-Type', 'text/javascript');
-  res.sendfile('js/treeNode.js');
-});
-
-app.get('/wikitree/js/parse.js', function(req,res){
-  res.set('Content-Type', 'text/javascript');
-  res.sendfile('js/parse.js');
-});
-
-app.get('/wikitree/js/graph.js', function(req,res){
-  res.set('Content-Type', 'text/javascript');
-  res.sendfile('js/graph.js');
-});
-
-app.get('/wikitree/js/d3.v3.min.js', function(req,res){
-  res.set('Content-Type', 'text/javascript');
-  res.sendfile('js/d3.v3.min.js');
-});
-
-app.get('/wikitree/css/style.css', function(req,res){
-  res.sendfile('css/style.css');
-});
 
 
 app.post('/sendUrl',  serveLink);
