@@ -39,6 +39,25 @@ body{
 	height: 110px;
 }
 
+#githubdiv{
+
+position:absolute;
+
+}
+
+#githubdiv img{
+
+opacity:1.0;
+filter:alpha(opacity=100); /* For IE8 and earlier */
+}
+
+#githubdiv img:hover
+{
+opacity:0.5;
+filter:alpha(opacity=50); /* For IE8 and earlier */
+}
+
+
 #logo{
 
   height: 110px;
@@ -61,10 +80,11 @@ body{
 
 #sidebar{
 
+  padding-left: 5px;
   float: left;
   padding-top: 10px;
   background-color: #EDEDED;
-  width: 250px;
+  width: 245px;
   height: 100%;
 }
 
